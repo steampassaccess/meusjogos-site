@@ -2,6 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Meus Jogos</title>
   <style>
     body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; display: flex; flex-direction: column; align-items: center; }
@@ -9,6 +10,7 @@
     input { padding: 8px; margin: 5px 0; width: 100%; box-sizing: border-box; font-size: 16px; }
     button { padding: 10px; margin-top: 10px; width: 100%; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
     button:hover { background: #0056b3; }
+
     .result {
       background: #eee;
       margin: 10px 0;
@@ -29,41 +31,46 @@
       padding: 5px 15px;
       cursor: pointer;
       font-size: 14px;
+      margin-top: 5px;
     }
     .copy-btn:hover { background: #1e7e34; }
 
+    /* Responsividade celular */
     @media (max-width: 768px) {
-      #cadastroBox { display: none; }
-      .box { width: 95%; padding: 25px; }
+      #boxCadastrar { display: none; }
+      .box { width: 95%; padding: 20px; }
+      input, button { font-size: 18px; padding: 12px; }
       .result { font-size: 20px; padding: 20px; }
       .copy-btn { padding: 10px 20px; font-size: 16px; }
-      input, button { font-size: 18px; padding: 12px; }
     }
   </style>
 </head>
 <body>
 
-  <div class="box" id="cadastroBox">
+  <!-- Cadastro só aparece em telas grandes -->
+  <div class="box" id="boxCadastrar">
     <h2>📌 Cadastrar jogo</h2>
     <input type="text" id="nome" placeholder="Nome do jogo">
     <input type="text" id="chave" placeholder="Chave">
     <button id="btnCadastrar">Salvar</button>
   </div>
 
+  <!-- Pesquisa sempre visível -->
   <div class="box">
     <h2>🔍 Pesquisar jogo</h2>
     <input type="text" id="pesquisa" placeholder="Digite o nome do jogo">
     <div id="resultados"></div>
   </div>
 
+  <!-- Jogos recém adicionados -->
   <div class="box">
-    <h2>🆕 Jogos adicionados recentemente</h2>
+    <h2>🆕 Jogos cadastrados recentemente</h2>
     <div id="recentes"></div>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDDb1tv_3Xxx1QwOgY_C88ar4x8Mx_HO0M",
@@ -82,50 +89,58 @@
       const nome = document.getElementById("nome").value.trim();
       const chave = document.getElementById("chave").value.trim();
       if (!nome || !chave) { alert("⚠️ Preencha todos os campos!"); return; }
-      await addDoc(collection(db, "jogos"), { nome, chave });
+      await addDoc(collection(db, "jogos"), { nome, chave, criadoEm: new Date() });
       alert("✅ Jogo cadastrado!");
       document.getElementById("nome").value = "";
       document.getElementById("chave").value = "";
-      carregarRecentes();
+      carregarJogos();
+      atualizarRecentes();
+      pesquisar();
     }
 
-    async function pesquisar() {
-      const termo = document.getElementById("pesquisa").value.trim().toLowerCase();
-      const resultadosDiv = document.getElementById("resultados");
-      resultadosDiv.innerHTML = "";
-      if (!termo) return;
+    let cacheJogos = [];
+
+    async function carregarJogos() {
       const querySnapshot = await getDocs(collection(db, "jogos"));
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        if (data.nome.toLowerCase().includes(termo)) {
-          resultadosDiv.appendChild(criarResultDiv(data.nome, data.chave));
-        }
-      });
+      cacheJogos = [];
+      querySnapshot.forEach(doc => cacheJogos.push(doc.data()));
     }
 
     function criarResultDiv(nome, chave) {
       const div = document.createElement("div");
       div.className = "result";
       const nomeSpan = document.createElement("span");
-      nomeSpan.textContent = nome;
+      nomeSpan.innerHTML = `<b>${nome}</b>`;
       const chaveSpan = document.createElement("span");
       chaveSpan.textContent = `🔑 ${chave}`;
       const btn = document.createElement("button");
       btn.className = "copy-btn";
       btn.textContent = "📋 Copiar";
-      btn.onclick = () => { navigator.clipboard.writeText(`${nome} - ${chave}`); alert(`✅ Copiado: ${nome} - ${chave}`); };
+      btn.onclick = () => {
+        navigator.clipboard.writeText(`${nome} - ${chave}`);
+        alert(`✅ Copiado: ${nome} - ${chave}`);
+      };
       div.appendChild(nomeSpan);
       div.appendChild(chaveSpan);
       div.appendChild(btn);
       return div;
     }
 
-    async function carregarRecentes() {
+    function pesquisar() {
+      const termo = document.getElementById("pesquisa").value.trim().toLowerCase();
+      const resultadosDiv = document.getElementById("resultados");
+      resultadosDiv.innerHTML = "";
+      if (!termo) return;
+      const resultados = cacheJogos.filter(j => j.nome.toLowerCase().includes(termo));
+      resultados.forEach(j => resultadosDiv.appendChild(criarResultDiv(j.nome, j.chave)));
+    }
+
+    async function atualizarRecentes() {
       const recentesDiv = document.getElementById("recentes");
       recentesDiv.innerHTML = "";
-      const querySnapshot = await getDocs(collection(db, "jogos"));
-      const docs = querySnapshot.docs.slice(-5).reverse();
-      docs.forEach(doc => {
+      const q = query(collection(db, "jogos"), orderBy("criadoEm", "desc"), limit(5));
+      const querySnapshot = await getDocs(q);
+      querySnapshot.forEach(doc => {
         const data = doc.data();
         recentesDiv.appendChild(criarResultDiv(data.nome, data.chave));
       });
@@ -133,9 +148,15 @@
 
     document.getElementById("btnCadastrar").addEventListener("click", cadastrar);
     document.getElementById("pesquisa").addEventListener("keyup", pesquisar);
-    carregarRecentes();
+
+    // Carregar jogos ao iniciar
+    carregarJogos();
+    atualizarRecentes();
   </script>
 </body>
 </html>
+
+
+
 
 

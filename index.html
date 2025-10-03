@@ -19,24 +19,22 @@
       align-items: center; 
       flex-wrap: wrap;
     }
+    .result span { flex: 1; }
     .copy-btn { 
       background: #28a745; 
       color: white; 
       border: none; 
       border-radius: 5px; 
-      padding: 5px; 
+      padding: 5px 10px; 
       cursor: pointer; 
-      width: 35px; 
-      height: 35px; 
-      font-size: 16px; 
-      display: flex; 
-      justify-content: center; 
-      align-items: center; 
+      font-size: 14px; 
       margin-left: 10px;
     }
     .copy-btn:hover { background: #1e7e34; }
     @media (max-width: 768px) {
       #cadastroBox { display: none; }
+      .result { flex-direction: column; align-items: flex-start; }
+      .copy-btn { width: 100%; margin: 5px 0 0 0; }
     }
   </style>
 </head>
@@ -115,7 +113,6 @@
       const recentesDiv = document.getElementById("recentes");
       recentesDiv.innerHTML = "";
       const querySnapshot = await getDocs(collection(db, "jogos"));
-      // mostra últimos 5 jogos adicionados
       const docs = querySnapshot.docs.slice(-5).reverse();
       docs.forEach(doc => {
         const data = doc.data();
@@ -134,11 +131,7 @@
 
     document.getElementById("btnCadastrar").addEventListener("click", cadastrar);
     document.getElementById("pesquisa").addEventListener("keyup", pesquisar);
-
-    // Carrega recentes ao iniciar
     carregarRecentes();
   </script>
 </body>
 </html>
-
-

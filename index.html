@@ -2,14 +2,28 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Meus Jogos</title>
   <style>
     body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
     .box { background: #fff; padding: 20px; margin-bottom: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,.1); }
-    input { padding: 8px; margin: 5px 0; width: 100%; }
+    input { padding: 8px; margin: 5px 0; width: 100%; box-sizing: border-box; }
     button { padding: 10px; margin-top: 10px; width: 100%; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
     button:hover { background: #0056b3; }
-    .result { background: #eee; margin: 5px 0; padding: 10px; border-radius: 5px; }
+    .result { background: #eee; margin: 5px 0; padding: 10px; border-radius: 5px; cursor: pointer; }
+
+    @media (max-width: 768px) {
+      body { margin: 10px; }
+      .box { padding: 15px; }
+      input, button { font-size: 16px; }
+      h2 { font-size: 18px; }
+    }
+    @media (max-width: 480px) {
+      body { margin: 5px; }
+      .box { padding: 10px; }
+      input, button { font-size: 14px; }
+      h2 { font-size: 16px; }
+    }
   </style>
 </head>
 <body>
@@ -28,11 +42,9 @@
   </div>
 
   <script type="module">
-    // Import Firebase SDKs
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
     import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
 
-    // Configuração do Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyDDb1tv_3Xxx1QwOgY_C88ar4x8Mx_HO0M",
       authDomain: "meus-jogos-d4d9a.firebaseapp.com",
@@ -43,43 +55,46 @@
       measurementId: "G-KBPWFPMGNS"
     };
 
-    // Inicializar Firebase
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // Função para cadastrar
     async function cadastrar() {
       const nome = document.getElementById("nome").value.trim();
       const chave = document.getElementById("chave").value.trim();
-      if (!nome || !chave) {
-        alert("⚠️ Preencha todos os campos!");
-        return;
-      }
+      if (!nome || !chave) { alert("⚠️ Preencha todos os campos!"); return; }
       await addDoc(collection(db, "jogos"), { nome, chave });
       alert("✅ Jogo cadastrado!");
       document.getElementById("nome").value = "";
       document.getElementById("chave").value = "";
+      pesquisar(); // atualizar resultados automaticamente
     }
 
-    // Função para pesquisar
-    async function pesquisar() {
+    let cacheJogos = []; // Armazena jogos para pesquisa instantânea
+
+    async function carregarJogos() {
+      const querySnapshot = await getDocs(collection(db, "jogos"));
+      cacheJogos = [];
+      querySnapshot.forEach(doc => {
+        cacheJogos.push(doc.data());
+      });
+    }
+
+    function pesquisar() {
       const termo = document.getElementById("pesquisa").value.trim().toLowerCase();
       const resultadosDiv = document.getElementById("resultados");
       resultadosDiv.innerHTML = "";
       if (!termo) return;
-
-      const querySnapshot = await getDocs(collection(db, "jogos"));
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        if (data.nome.toLowerCase().includes(termo)) {
-          resultadosDiv.innerHTML += `<div class="result"><b>${data.nome}</b><br>🔑 ${data.chave}</div>`;
-        }
+      const resultados = cacheJogos.filter(j => j.nome.toLowerCase().includes(termo));
+      resultados.forEach(j => {
+        resultadosDiv.innerHTML += `<div class="result"><b>${j.nome}</b><br>🔑 ${j.chave}</div>`;
       });
     }
 
-    // Eventos
     document.getElementById("btnCadastrar").addEventListener("click", cadastrar);
     document.getElementById("pesquisa").addEventListener("keyup", pesquisar);
+
+    // Carregar jogos ao iniciar
+    carregarJogos();
   </script>
 </body>
 </html>

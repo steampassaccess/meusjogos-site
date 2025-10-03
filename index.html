@@ -10,7 +10,9 @@
     input { padding: 8px; margin: 5px 0; width: 100%; box-sizing: border-box; }
     button { padding: 10px; margin-top: 10px; width: 100%; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
     button:hover { background: #0056b3; }
-    .result { background: #eee; margin: 5px 0; padding: 10px; border-radius: 5px; cursor: pointer; }
+    .result { background: #eee; margin: 5px 0; padding: 10px; border-radius: 5px; display: flex; justify-content: space-between; align-items: center; }
+    .copy-btn { background: #28a745; color: white; border: none; border-radius: 5px; padding: 5px 10px; cursor: pointer; }
+    .copy-btn:hover { background: #1e7e34; }
 
     /* Responsividade */
     @media (max-width: 768px) {
@@ -78,9 +80,9 @@
       alert("✅ Jogo cadastrado!");
       document.getElementById("nome").value = "";
       document.getElementById("chave").value = "";
-      carregarJogos(); // atualizar lista
-      atualizarRecentes(); // atualizar jogos recentes
-      pesquisar(); // atualizar resultados
+      carregarJogos();
+      atualizarRecentes();
+      pesquisar();
     }
 
     let cacheJogos = [];
@@ -88,9 +90,7 @@
     async function carregarJogos() {
       const querySnapshot = await getDocs(collection(db, "jogos"));
       cacheJogos = [];
-      querySnapshot.forEach(doc => {
-        cacheJogos.push(doc.data());
-      });
+      querySnapshot.forEach(doc => cacheJogos.push(doc.data()));
     }
 
     function pesquisar() {
@@ -100,19 +100,40 @@
       if (!termo) return;
       const resultados = cacheJogos.filter(j => j.nome.toLowerCase().includes(termo));
       resultados.forEach(j => {
-        resultadosDiv.innerHTML += `<div class="result"><b>${j.nome}</b><br>🔑 ${j.chave}</div>`;
+        const div = document.createElement("div");
+        div.className = "result";
+        div.innerHTML = `<div><b>${j.nome}</b><br>🔑 ${j.chave}</div>`;
+        const btn = document.createElement("button");
+        btn.className = "copy-btn";
+        btn.textContent = "📋 Copiar";
+        btn.onclick = () => {
+          navigator.clipboard.writeText(`${j.nome} - ${j.chave}`);
+          alert(`✅ Copiado: ${j.nome} - ${j.chave}`);
+        };
+        div.appendChild(btn);
+        resultadosDiv.appendChild(div);
       });
     }
 
     async function atualizarRecentes() {
       const recentesDiv = document.getElementById("recentes");
       recentesDiv.innerHTML = "";
-      // Buscar últimos 5 jogos cadastrados
       const q = query(collection(db, "jogos"), orderBy("criadoEm", "desc"), limit(5));
       const querySnapshot = await getDocs(q);
       querySnapshot.forEach(doc => {
         const data = doc.data();
-        recentesDiv.innerHTML += `<div class="result"><b>${data.nome}</b><br>🔑 ${data.chave}</div>`;
+        const div = document.createElement("div");
+        div.className = "result";
+        div.innerHTML = `<div><b>${data.nome}</b><br>🔑 ${data.chave}</div>`;
+        const btn = document.createElement("button");
+        btn.className = "copy-btn";
+        btn.textContent = "📋 Copiar";
+        btn.onclick = () => {
+          navigator.clipboard.writeText(`${data.nome} - ${data.chave}`);
+          alert(`✅ Copiado: ${data.nome} - ${data.chave}`);
+        };
+        div.appendChild(btn);
+        recentesDiv.appendChild(div);
       });
     }
 

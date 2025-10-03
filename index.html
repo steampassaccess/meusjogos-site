@@ -3,25 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Meus Jogos</title>
+  <title>Meus Jogos - Login</title>
   <style>
     body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; display: flex; flex-direction: column; align-items: center; }
+
     .box { background: #fff; padding: 20px; margin-bottom: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,.1); width: 100%; max-width: 500px; }
-    input { padding: 8px; margin: 5px 0; width: 100%; box-sizing: border-box; font-size: 16px; }
+    input { padding: 10px; margin: 10px 0; width: 100%; box-sizing: border-box; font-size: 16px; }
     button { padding: 10px; margin-top: 10px; width: 100%; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
     button:hover { background: #0056b3; }
 
-    .result {
-      background: #eee;
-      margin: 10px 0;
-      padding: 15px;
-      border-radius: 10px;
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      font-size: 16px;
-    }
+    .result { background: #eee; margin: 10px 0; padding: 15px; border-radius: 10px; text-align: center; display: flex; flex-direction: column; align-items: center; font-size: 16px; }
     .result span { margin: 5px 0; word-break: break-word; }
     .btn-group { display: flex; gap: 10px; margin-top: 5px; }
     .copy-btn, .delete-btn {
@@ -38,9 +29,8 @@
     .delete-btn { background: #dc3545; }
     .delete-btn:hover { background: #a71d2a; }
 
-    /* Responsividade celular */
+    /* Responsividade */
     @media (max-width: 768px) {
-      #boxCadastrar { display: none; }
       .box { width: 95%; padding: 20px; }
       input, button { font-size: 18px; padding: 12px; }
       .result { font-size: 20px; padding: 20px; }
@@ -50,24 +40,31 @@
 </head>
 <body>
 
-  <!-- Cadastro só aparece em telas grandes -->
-  <div class="box" id="boxCadastrar">
+  <!-- Tela de login -->
+  <div class="box" id="boxLogin">
+    <h2>🔑 Login</h2>
+    <input type="text" id="usuario" placeholder="Digite seu nome de usuário">
+    <button id="btnLogin">Entrar</button>
+  </div>
+
+  <!-- Cadastro (só aparece para admin) -->
+  <div class="box" id="boxCadastrar" style="display:none;">
     <h2>📌 Cadastrar jogo</h2>
     <input type="text" id="nome" placeholder="Nome do jogo">
     <input type="text" id="chave" placeholder="Chave">
     <button id="btnCadastrar">Salvar</button>
   </div>
 
-  <!-- Pesquisa sempre visível -->
-  <div class="box">
+  <!-- Pesquisa sempre visível após login -->
+  <div class="box" id="boxPesquisa" style="display:none;">
     <h2>🔍 Pesquisar jogo</h2>
     <div id="contador">Total de jogos cadastrados: 0</div>
     <input type="text" id="pesquisa" placeholder="Digite o nome do jogo">
     <div id="resultados"></div>
   </div>
 
-  <!-- Jogos recém adicionados -->
-  <div class="box">
+  <!-- Jogos recentes -->
+  <div class="box" id="boxRecentes" style="display:none;">
     <h2>🆕 Jogos cadastrados recentemente</h2>
     <div id="recentes"></div>
   </div>
@@ -89,7 +86,33 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
+    let usuarioLogado = "";
+    let cacheJogos = [];
+
+    // LOGIN
+    document.getElementById("btnLogin").addEventListener("click", () => {
+      usuarioLogado = document.getElementById("usuario").value.trim().toLowerCase();
+      if (!usuarioLogado) return;
+
+      // Esconde login
+      document.getElementById("boxLogin").style.display = "none";
+
+      // Mostra pesquisa e recentes
+      document.getElementById("boxPesquisa").style.display = "block";
+      document.getElementById("boxRecentes").style.display = "block";
+
+      // Só admin vê o box de cadastrar
+      if (usuarioLogado === "luanctos") {
+        document.getElementById("boxCadastrar").style.display = "block";
+      }
+
+      carregarJogos();
+      atualizarRecentes();
+    });
+
+    // Cadastrar jogo (apenas admin)
     async function cadastrar() {
+      if (usuarioLogado !== "luanctos") return;
       const nome = document.getElementById("nome").value.trim();
       const chave = document.getElementById("chave").value.trim();
       if (!nome || !chave) return;
@@ -100,8 +123,6 @@
       atualizarRecentes();
       pesquisar();
     }
-
-    let cacheJogos = [];
 
     async function carregarJogos() {
       const querySnapshot = await getDocs(collection(db, "jogos"));
@@ -126,22 +147,23 @@
       const btnCopy = document.createElement("button");
       btnCopy.className = "copy-btn";
       btnCopy.textContent = "📋 Copiar";
-      btnCopy.onclick = () => {
-        navigator.clipboard.writeText(`${nome} - ${chave}`);
-      };
-
-      const btnDelete = document.createElement("button");
-      btnDelete.className = "delete-btn";
-      btnDelete.textContent = "🗑️ Excluir";
-      btnDelete.onclick = async () => {
-        await deleteDoc(doc(db, "jogos", id));
-        await carregarJogos();
-        atualizarRecentes();
-        pesquisar();
-      };
+      btnCopy.onclick = () => navigator.clipboard.writeText(`${nome} - ${chave}`);
 
       btnGroup.appendChild(btnCopy);
-      btnGroup.appendChild(btnDelete);
+
+      // Apenas admin pode excluir
+      if (usuarioLogado === "luanctos") {
+        const btnDelete = document.createElement("button");
+        btnDelete.className = "delete-btn";
+        btnDelete.textContent = "🗑️ Excluir";
+        btnDelete.onclick = async () => {
+          await deleteDoc(doc(db, "jogos", id));
+          await carregarJogos();
+          atualizarRecentes();
+          pesquisar();
+        };
+        btnGroup.appendChild(btnDelete);
+      }
 
       div.appendChild(nomeSpan);
       div.appendChild(chaveSpan);
@@ -176,14 +198,9 @@
 
     document.getElementById("btnCadastrar").addEventListener("click", cadastrar);
     document.getElementById("pesquisa").addEventListener("keyup", pesquisar);
-
-    // Carregar jogos ao iniciar
-    carregarJogos();
-    atualizarRecentes();
   </script>
 </body>
 </html>
-
 
 
 

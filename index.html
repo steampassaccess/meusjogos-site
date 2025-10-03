@@ -47,9 +47,15 @@
     <div id="resultados"></div>
   </div>
 
+  <!-- Jogos recém adicionados -->
+  <div class="box">
+    <h2>🆕 Jogos cadastrados recentemente</h2>
+    <div id="recentes"></div>
+  </div>
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDDb1tv_3Xxx1QwOgY_C88ar4x8Mx_HO0M",
@@ -68,11 +74,12 @@
       const nome = document.getElementById("nome").value.trim();
       const chave = document.getElementById("chave").value.trim();
       if (!nome || !chave) { alert("⚠️ Preencha todos os campos!"); return; }
-      await addDoc(collection(db, "jogos"), { nome, chave });
+      await addDoc(collection(db, "jogos"), { nome, chave, criadoEm: new Date() });
       alert("✅ Jogo cadastrado!");
       document.getElementById("nome").value = "";
       document.getElementById("chave").value = "";
       carregarJogos(); // atualizar lista
+      atualizarRecentes(); // atualizar jogos recentes
       pesquisar(); // atualizar resultados
     }
 
@@ -97,13 +104,25 @@
       });
     }
 
+    async function atualizarRecentes() {
+      const recentesDiv = document.getElementById("recentes");
+      recentesDiv.innerHTML = "";
+      // Buscar últimos 5 jogos cadastrados
+      const q = query(collection(db, "jogos"), orderBy("criadoEm", "desc"), limit(5));
+      const querySnapshot = await getDocs(q);
+      querySnapshot.forEach(doc => {
+        const data = doc.data();
+        recentesDiv.innerHTML += `<div class="result"><b>${data.nome}</b><br>🔑 ${data.chave}</div>`;
+      });
+    }
+
     document.getElementById("btnCadastrar").addEventListener("click", cadastrar);
     document.getElementById("pesquisa").addEventListener("keyup", pesquisar);
 
     // Carregar jogos ao iniciar
     carregarJogos();
+    atualizarRecentes();
   </script>
 </body>
 </html>
-
 

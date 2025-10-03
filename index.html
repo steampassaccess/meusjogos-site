@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Meus Jogos</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+    .box { background: #fff; padding: 20px; margin-bottom: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,.1); }
+    input { padding: 8px; margin: 5px 0; width: 100%; }
+    button { padding: 10px; margin-top: 10px; width: 100%; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    button:hover { background: #0056b3; }
+    .result { background: #eee; margin: 5px 0; padding: 10px; border-radius: 5px; }
+  </style>
+</head>
+<body>
+
+  <div class="box">
+    <h2>📌 Cadastrar jogo</h2>
+    <input type="text" id="nome" placeholder="Nome do jogo">
+    <input type="text" id="chave" placeholder="Chave">
+    <button id="btnCadastrar">Salvar</button>
+  </div>
+
+  <div class="box">
+    <h2>🔍 Pesquisar jogo</h2>
+    <input type="text" id="pesquisa" placeholder="Digite o nome do jogo">
+    <div id="resultados"></div>
+  </div>
+
+  <script type="module">
+    // Import Firebase SDKs
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
+
+    // Configuração do Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyDDb1tv_3Xxx1QwOgY_C88ar4x8Mx_HO0M",
+      authDomain: "meus-jogos-d4d9a.firebaseapp.com",
+      projectId: "meus-jogos-d4d9a",
+      storageBucket: "meus-jogos-d4d9a.firebasestorage.app",
+      messagingSenderId: "183899321961",
+      appId: "1:183899321961:web:4bb40f0c0dc5f1aaf7d4f8",
+      measurementId: "G-KBPWFPMGNS"
+    };
+
+    // Inicializar Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Função para cadastrar
+    async function cadastrar() {
+      const nome = document.getElementById("nome").value.trim();
+      const chave = document.getElementById("chave").value.trim();
+      if (!nome || !chave) {
+        alert("⚠️ Preencha todos os campos!");
+        return;
+      }
+      await addDoc(collection(db, "jogos"), { nome, chave });
+      alert("✅ Jogo cadastrado!");
+      document.getElementById("nome").value = "";
+      document.getElementById("chave").value = "";
+    }
+
+    // Função para pesquisar
+    async function pesquisar() {
+      const termo = document.getElementById("pesquisa").value.trim().toLowerCase();
+      const resultadosDiv = document.getElementById("resultados");
+      resultadosDiv.innerHTML = "";
+      if (!termo) return;
+
+      const querySnapshot = await getDocs(collection(db, "jogos"));
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        if (data.nome.toLowerCase().includes(termo)) {
+          resultadosDiv.innerHTML += `<div class="result"><b>${data.nome}</b><br>🔑 ${data.chave}</div>`;
+        }
+      });
+    }
+
+    // Eventos
+    document.getElementById("btnCadastrar").addEventListener("click", cadastrar);
+    document.getElementById("pesquisa").addEventListener("keyup", pesquisar);
+  </script>
+</body>
+</html>

@@ -92,7 +92,7 @@
     async function cadastrar() {
       const nome = document.getElementById("nome").value.trim();
       const chave = document.getElementById("chave").value.trim();
-      if (!nome || !chave) { alert("⚠️ Preencha todos os campos!"); return; }
+      if (!nome || !chave) return;
       await addDoc(collection(db, "jogos"), { nome, chave, criadoEm: new Date() });
       document.getElementById("nome").value = "";
       document.getElementById("chave").value = "";
@@ -128,19 +128,16 @@
       btnCopy.textContent = "📋 Copiar";
       btnCopy.onclick = () => {
         navigator.clipboard.writeText(`${nome} - ${chave}`);
-        alert("Copiado!");
       };
 
       const btnDelete = document.createElement("button");
       btnDelete.className = "delete-btn";
       btnDelete.textContent = "🗑️ Excluir";
       btnDelete.onclick = async () => {
-        if (confirm(`Tem certeza que deseja excluir o jogo "${nome}"?`)) {
-          await deleteDoc(doc(db, "jogos", id));
-          await carregarJogos();
-          atualizarRecentes();
-          pesquisar();
-        }
+        await deleteDoc(doc(db, "jogos", id));
+        await carregarJogos();
+        atualizarRecentes();
+        pesquisar();
       };
 
       btnGroup.appendChild(btnCopy);
@@ -186,6 +183,8 @@
   </script>
 </body>
 </html>
+
+
 
 
 

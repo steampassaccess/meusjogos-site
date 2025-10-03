@@ -23,17 +23,20 @@
       font-size: 16px;
     }
     .result span { margin: 5px 0; word-break: break-word; }
-    .copy-btn {
-      background: #28a745;
+    .btn-group { display: flex; gap: 10px; margin-top: 5px; }
+    .copy-btn, .delete-btn {
+      flex: 1;
       color: white;
       border: none;
       border-radius: 5px;
       padding: 5px 15px;
       cursor: pointer;
       font-size: 14px;
-      margin-top: 5px;
     }
+    .copy-btn { background: #28a745; }
     .copy-btn:hover { background: #1e7e34; }
+    .delete-btn { background: #dc3545; }
+    .delete-btn:hover { background: #a71d2a; }
 
     /* Responsividade celular */
     @media (max-width: 768px) {
@@ -41,7 +44,7 @@
       .box { width: 95%; padding: 20px; }
       input, button { font-size: 18px; padding: 12px; }
       .result { font-size: 20px; padding: 20px; }
-      .copy-btn { padding: 10px 20px; font-size: 16px; }
+      .copy-btn, .delete-btn { padding: 10px 20px; font-size: 16px; }
     }
   </style>
 </head>
@@ -71,7 +74,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, getDocs, query, orderBy, limit, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDDb1tv_3Xxx1QwOgY_C88ar4x8Mx_HO0M",
@@ -103,27 +106,49 @@
     async function carregarJogos() {
       const querySnapshot = await getDocs(collection(db, "jogos"));
       cacheJogos = [];
-      querySnapshot.forEach(doc => cacheJogos.push(doc.data()));
+      querySnapshot.forEach(docSnap => {
+        cacheJogos.push({ id: docSnap.id, ...docSnap.data() });
+      });
       atualizarContador();
     }
 
-    function criarResultDiv(nome, chave) {
+    function criarResultDiv(id, nome, chave) {
       const div = document.createElement("div");
       div.className = "result";
       const nomeSpan = document.createElement("span");
       nomeSpan.innerHTML = `<b>${nome}</b>`;
       const chaveSpan = document.createElement("span");
       chaveSpan.textContent = `🔑 ${chave}`;
-      const btn = document.createElement("button");
-      btn.className = "copy-btn";
-      btn.textContent = "Copiado!";
-      btn.onclick = () => {
+
+      const btnGroup = document.createElement("div");
+      btnGroup.className = "btn-group";
+
+      const btnCopy = document.createElement("button");
+      btnCopy.className = "copy-btn";
+      btnCopy.textContent = "📋 Copiar";
+      btnCopy.onclick = () => {
         navigator.clipboard.writeText(`${nome} - ${chave}`);
         alert("Copiado!");
       };
+
+      const btnDelete = document.createElement("button");
+      btnDelete.className = "delete-btn";
+      btnDelete.textContent = "🗑️ Excluir";
+      btnDelete.onclick = async () => {
+        if (confirm(`Tem certeza que deseja excluir o jogo "${nome}"?`)) {
+          await deleteDoc(doc(db, "jogos", id));
+          await carregarJogos();
+          atualizarRecentes();
+          pesquisar();
+        }
+      };
+
+      btnGroup.appendChild(btnCopy);
+      btnGroup.appendChild(btnDelete);
+
       div.appendChild(nomeSpan);
       div.appendChild(chaveSpan);
-      div.appendChild(btn);
+      div.appendChild(btnGroup);
       return div;
     }
 
@@ -134,7 +159,7 @@
       const resultados = termo 
         ? cacheJogos.filter(j => j.nome.toLowerCase().includes(termo)) 
         : cacheJogos;
-      resultados.forEach(j => resultadosDiv.appendChild(criarResultDiv(j.nome, j.chave)));
+      resultados.forEach(j => resultadosDiv.appendChild(criarResultDiv(j.id, j.nome, j.chave)));
     }
 
     async function atualizarRecentes() {
@@ -142,9 +167,9 @@
       recentesDiv.innerHTML = "";
       const q = query(collection(db, "jogos"), orderBy("criadoEm", "desc"), limit(5));
       const querySnapshot = await getDocs(q);
-      querySnapshot.forEach(doc => {
-        const data = doc.data();
-        recentesDiv.appendChild(criarResultDiv(data.nome, data.chave));
+      querySnapshot.forEach(docSnap => {
+        const data = docSnap.data();
+        recentesDiv.appendChild(criarResultDiv(docSnap.id, data.nome, data.chave));
       });
     }
 
@@ -161,6 +186,8 @@
   </script>
 </body>
 </html>
+
+
 
 
 

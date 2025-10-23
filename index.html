@@ -968,7 +968,7 @@
                 });
                 
                 // Load recent games (last 8)
-                const recentQuery = query(collection(db, "jogos"), orderBy("criadoEm", "desc"), limit(8));
+                const recentQuery = query(collection(db, "jogos"), orderBy("criadoEm", "desc"), limit(9));
                 const recentSnapshot = await getDocs(recentQuery);
                 recentGamesGrid.innerHTML = '';
                 
@@ -1172,7 +1172,6 @@
     </script>
 </body>
 </html>
-
 
 
 

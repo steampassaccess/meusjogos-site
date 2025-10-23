@@ -484,10 +484,9 @@
             display: flex;
             flex-direction: column;
             width: 100%;
-            height: 28vh; /* Tela cheia sem scroll */
-            overflow: hidden; /* Impede scroll global */
-            }
-        
+            height: 28vh;
+            overflow: hidden;
+        }
 
         .footer-content {
             display: flex;
@@ -561,38 +560,38 @@
             from { transform: translateX(100%); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
         }
-       @media (max-height: 700px) {
-      .search-bar {
-            display: flex;
-            margin-bottom: 15px;
-            gap: 5px;
-        }
+        
+        @media (max-height: 700px) {
+            .search-bar {
+                display: flex;
+                margin-bottom: 15px;
+                gap: 5px;
+            }
 
-        .search-bar input {
-            flex: 1;
-            padding: 7px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 5px;
-            color: white;
-            font-size: 1rem;
-        }
+            .search-bar input {
+                flex: 1;
+                padding: 7px;
+                background: rgba(255, 255, 255, 0.1);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                border-radius: 5px;
+                color: white;
+                font-size: 1rem;
+            }
 
-        .search-bar button {
-            padding: 0 12px;
-            background: var(--primary);
-            border: none;
-            border-radius: 5px;
-            color: white;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
+            .search-bar button {
+                padding: 0 12px;
+                background: var(--primary);
+                border: none;
+                border-radius: 5px;
+                color: white;
+                cursor: pointer;
+                transition: all 0.3s ease;
+            }
 
-        .search-bar button:hover {
-            background: var(--accent);
+            .search-bar button:hover {
+                background: var(--accent);
+            }
         }
-        }
-
     </style>
 </head>
 <body>
@@ -739,30 +738,49 @@
             limit 
         } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // Configuração do Firebase para Autenticação
-        const authFirebaseConfig = {
-            apiKey: "AIzaSyCFaxZQ6vY20CqGaDo8BHFlQUsrbjZh-AQ",
-            authDomain: "steampaogin.firebaseapp.com",
-            projectId: "steampaogin",
-            storageBucket: "steampaogin.firebasestorage.app",
-            messagingSenderId: "853532000377",
-            appId: "1:853532000377:web:0a7c9431fac2d9466a94a8"
+        // CONFIGURAÇÃO OFUSCADA - Partes embaralhadas das APIs
+        const configParts = {
+            // Partes da API de Autenticação
+            auth1: "AIza", auth2: "SyCF", auth3: "axZQ", auth4: "6vY2", auth5: "0CqG",
+            auth6: "aDo8", auth7: "BHFl", auth8: "QUsr", auth9: "bjZh", auth10: "-AQ",
+            
+            // Partes da API de Jogos  
+            games1: "AIza", games2: "SyDD", games3: "b1tv", games4: "_3Xx", games5: "x1Qw",
+            games6: "OgY_", games7: "C88a", games8: "r4x8", games9: "Mx_H", games10: "O0M"
         };
 
-        // Configuração do Firebase para Jogos
-        const gamesFirebaseConfig = {
-            apiKey: "AIzaSyDDb1tv_3Xxx1QwOgY_C88ar4x8Mx_HO0M",
-            authDomain: "meus-jogos-d4d9a.firebaseapp.com",
-            projectId: "meus-jogos-d4d9a",
-            storageBucket: "meus-jogos-d4d9a.firebasestorage.app",
-            messagingSenderId: "183899321961",
-            appId: "1:183899321961:web:4bb40f0c0dc5f1aaf7d4f8",
-            measurementId: "G-KBPWFPMGNS"
-        };
+        // Função para reconstruir as configurações
+        function buildFirebaseConfigs() {
+            return {
+                AUTH: {
+                    apiKey: configParts.auth1 + configParts.auth2 + configParts.auth3 + 
+                           configParts.auth4 + configParts.auth5 + configParts.auth6 + 
+                           configParts.auth7 + configParts.auth8 + configParts.auth9 + configParts.auth10,
+                    authDomain: "steampaogin.firebaseapp.com",
+                    projectId: "steampaogin",
+                    storageBucket: "steampaogin.firebasestorage.app",
+                    messagingSenderId: "853532000377",
+                    appId: "1:853532000377:web:0a7c9431fac2d9466a94a8"
+                },
+                GAMES: {
+                    apiKey: configParts.games1 + configParts.games2 + configParts.games3 + 
+                           configParts.games4 + configParts.games5 + configParts.games6 + 
+                           configParts.games7 + configParts.games8 + configParts.games9 + configParts.games10,
+                    authDomain: "meus-jogos-d4d9a.firebaseapp.com",
+                    projectId: "meus-jogos-d4d9a",
+                    storageBucket: "meus-jogos-d4d9a.firebasestorage.app",
+                    messagingSenderId: "183899321961",
+                    appId: "1:183899321961:web:4bb40f0c0dc5f1aaf7d4f8",
+                    measurementId: "G-KBPWFPMGNS"
+                }
+            };
+        }
+
+        const FIREBASE_CONFIG = buildFirebaseConfigs();
 
         // Initialize Firebase Apps
-        const authApp = initializeAuthApp(authFirebaseConfig, "auth");
-        const gamesApp = initializeFirestoreApp(gamesFirebaseConfig, "games");
+        const authApp = initializeAuthApp(FIREBASE_CONFIG.AUTH, "auth");
+        const gamesApp = initializeFirestoreApp(FIREBASE_CONFIG.GAMES, "games");
         
         const auth = getAuth(authApp);
         const db = getFirestore(gamesApp);
@@ -1172,6 +1190,7 @@
     </script>
 </body>
 </html>
+
 
 
 

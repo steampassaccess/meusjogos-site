@@ -1,207 +1,1145 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Meus Jogos - Login</title>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; display: flex; flex-direction: column; align-items: center; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Steam Pass Seu Acervo de Jogos</title>
+    <style>
+        :root {
+            --primary: #6c5ce7;
+            --secondary: #a29bfe;
+            --dark: #2d3436;
+            --light: #dfe6e9;
+            --accent: #fd79a8;
+            --success: #00b894;
+            --warning: #fdcb6e;
+            --danger: #e17055;
+        }
 
-    .box { background: #fff; padding: 20px; margin-bottom: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,.1); width: 100%; max-width: 500px; }
-    input { padding: 10px; margin: 10px 0; width: 100%; box-sizing: border-box; font-size: 16px; }
-    button { padding: 10px; margin-top: 10px; width: 100%; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
-    button:hover { background: #0056b3; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
-    .result { background: #eee; margin: 10px 0; padding: 15px; border-radius: 10px; text-align: center; display: flex; flex-direction: column; align-items: center; font-size: 16px; }
-    .result span { margin: 5px 0; word-break: break-word; }
-    .btn-group { display: flex; gap: 10px; margin-top: 5px; }
-    .copy-btn, .delete-btn {
-      flex: 1;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      padding: 5px 15px;
-      cursor: pointer;
-      font-size: 14px;
-    }
-    .copy-btn { background: #28a745; }
-    .copy-btn:hover { background: #1e7e34; }
-    .delete-btn { background: #dc3545; }
-    .delete-btn:hover { background: #a71d2a; }
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: var(--light);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
 
-    /* Responsividade */
-    @media (max-width: 768px) {
-      .box { width: 95%; padding: 20px; }
-      input, button { font-size: 18px; padding: 12px; }
-      .result { font-size: 20px; padding: 20px; }
-      .copy-btn, .delete-btn { padding: 10px 20px; font-size: 16px; }
-    }
-  </style>
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Styles */
+        header {
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 2px solid var(--primary);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo h1 {
+            font-size: 1.8rem;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 10px rgba(108, 92, 231, 0.5);
+        }
+
+        .logo-icon {
+            font-size: 2rem;
+            color: var(--primary);
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 20px;
+            align-items: center;
+        }
+
+        nav a {
+            color: var(--light);
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        nav a:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--light);
+        }
+
+        .logout-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: #c95f3f;
+        }
+
+        /* Login Page Styles */
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100%;
+            padding: 40px 0;
+        }
+
+        .login-box {
+            background: rgba(30, 30, 46, 0.8);
+            border-radius: 20px;
+            padding: 40px;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(108, 92, 231, 0.3);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-box::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(108, 92, 231, 0.1), transparent);
+            transform: rotate(45deg);
+            animation: shine 6s infinite linear;
+        }
+
+        @keyframes shine {
+            0% { transform: rotate(45deg) translateX(-100%); }
+            100% { transform: rotate(45deg) translateX(100%); }
+        }
+
+        .login-title {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .login-subtitle {
+            margin-bottom: 30px;
+            color: var(--secondary);
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 10px rgba(108, 92, 231, 0.5);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(108, 92, 231, 0.4);
+        }
+
+        /* Games Page Styles */
+        .games-container {
+            padding: 40px 0;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 30px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .search-bar {
+            display: flex;
+            margin-bottom: 30px;
+            gap: 10px;
+        }
+
+        .search-bar input {
+            flex: 1;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            color: white;
+            font-size: 1rem;
+        }
+
+        .search-bar button {
+            padding: 0 25px;
+            background: var(--primary);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .search-bar button:hover {
+            background: var(--accent);
+        }
+
+        /* Recent Games Section */
+        .recent-section {
+            margin-bottom: 40px;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: var(--primary);
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 10px;
+        }
+
+        .recent-games {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        /* All Games Section */
+        .all-games-section {
+            margin-top: 40px;
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .game-card {
+            background: rgba(30, 30, 46, 0.8);
+            border-radius: 15px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(108, 92, 231, 0.3);
+            position: relative;
+        }
+
+        .game-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .game-cover {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+
+        .game-info {
+            padding: 20px;
+        }
+
+        .game-title {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            color: white;
+        }
+
+        .game-details {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            color: var(--secondary);
+        }
+
+        .key-count {
+            background: var(--primary);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+
+        .get-key-btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--primary);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 10px;
+        }
+
+        .get-key-btn:hover {
+            background: var(--accent);
+        }
+
+        .get-key-btn:disabled {
+            background: var(--dark);
+            color: var(--secondary);
+            cursor: not-allowed;
+        }
+
+        .edit-game-btn {
+            width: 100%;
+            padding: 8px;
+            background: var(--warning);
+            border: none;
+            border-radius: 8px;
+            color: var(--dark);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .edit-game-btn:hover {
+            background: #e6b142;
+        }
+
+        /* Admin Panel Styles */
+        .admin-panel {
+            background: rgba(30, 30, 46, 0.9);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 40px;
+            border: 1px solid rgba(108, 92, 231, 0.5);
+        }
+
+        .admin-title {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+
+        .admin-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: white;
+            font-size: 1rem;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .add-game-btn, .update-game-btn {
+            padding: 15px 30px;
+            background: var(--primary);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            grid-column: 1 / -1;
+            justify-self: center;
+            width: 200px;
+        }
+
+        .add-game-btn:hover, .update-game-btn:hover {
+            background: var(--accent);
+        }
+
+        .update-game-btn {
+            background: var(--warning);
+            color: var(--dark);
+        }
+
+        .update-game-btn:hover {
+            background: #e6b142;
+        }
+
+        .cancel-edit-btn {
+            padding: 15px 30px;
+            background: var(--danger);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            grid-column: 1 / -1;
+            justify-self: center;
+            width: 200px;
+            margin-top: 10px;
+        }
+
+        .cancel-edit-btn:hover {
+            background: #c95f3f;
+        }
+
+        /* Footer Styles */
+        footer {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 30px 0;
+            text-align: center;
+            border-top: 2px solid rgba(108, 92, 231, 0.3);
+            margin-top: 4px;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            height: 28vh; /* Tela cheia sem scroll */
+            overflow: hidden; /* Impede scroll global */
+            }
+        
+
+        .footer-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 15px;
+        }
+
+        .social-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .social-icon:hover {
+            background: var(--primary);
+            transform: translateY(-5px);
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .admin-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .games-grid, .recent-games {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+        }
+
+        /* Utility Classes */
+        .hidden {
+            display: none;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 10px;
+            color: white;
+            z-index: 1000;
+            animation: slideIn 0.5s ease;
+        }
+
+        .notification.success {
+            background: var(--success);
+        }
+
+        .notification.error {
+            background: var(--danger);
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+    </style>
 </head>
 <body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <span class="logo-icon">🎮</span>
+                    <h1>SteamPass</h1>
+                </div>
+                <nav>
+                    <ul>
+                        <li><a href="#" id="nav-home">Início</a></li>
+                        <li id="user-nav-item" class="hidden">
+                            <div class="user-info">
+                                <span id="user-email"></span>
+                                <button class="logout-btn" id="logout-btn">Sair</button>
+                            </div>
+                        </li>
+                        <li id="login-nav-item"><a href="#" id="nav-login">Login</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
 
-  <!-- Tela de login -->
-  <div class="box" id="boxLogin">
-    <h2>🔑 Login</h2>
-    <input type="text" id="usuario" placeholder="Digite seu nome de usuário">
-    <button id="btnLogin">Entrar</button>
-  </div>
+    <!-- Main Content -->
+    <main>
+        <!-- Login Page -->
+        <section id="login-page" class="login-container">
+            <div class="login-box">
+                <h2 class="login-title">SteamPass</h2>
+                <p class="login-subtitle">Entre para acessar coleção de jogos</p>
+                <form id="login-form">
+                    <div class="input-group">
+                        <label for="email">E-mail</label>
+                        <input type="email" id="email" placeholder="Digite seu e-mail" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="password">Senha</label>
+                        <input type="password" id="password" placeholder="Digite sua senha" required>
+                    </div>
+                    <button type="submit" class="login-btn">Entrar na Arena</button>
+                </form>
+                <p style="margin-top: 20px; color: var(--secondary); font-size: 0.9rem;">
+                    Entre com login e senha
+                </p>
+            </div>
+        </section>
 
-  <!-- Cadastro (só aparece para admin) -->
-  <div class="box" id="boxCadastrar" style="display:none;">
-    <h2>📌 Cadastrar jogo</h2>
-    <input type="text" id="nome" placeholder="Nome do jogo">
-    <input type="text" id="chave" placeholder="Chave">
-    <button id="btnCadastrar">Salvar</button>
-  </div>
+        <!-- Games Page -->
+        <section id="games-page" class="container hidden">
+            <div class="games-container">
+                <h2 class="page-title">Nossa Coleção de Jogos</h2>
+                
+                <!-- Admin Panel (only visible for admin) -->
+                <div id="admin-panel" class="admin-panel hidden">
+                    <h3 class="admin-title" id="admin-panel-title">Adicionar Novo Jogo</h3>
+                    <form id="add-game-form" class="admin-form">
+                        <input type="hidden" id="edit-game-id">
+                        <div class="form-group">
+                            <label for="game-title">Título do Jogo</label>
+                            <input type="text" id="game-title" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="game-cover">URL da Capa</label>
+                            <input type="url" id="game-cover" placeholder="https://exemplo.com/imagem.jpg" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="game-description">Descrição</label>
+                            <textarea id="game-description" required></textarea>
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="game-keys">Chaves (separadas por vírgula)</label>
+                            <textarea id="game-keys" placeholder="CHAVE1, CHAVE2, CHAVE3" required></textarea>
+                        </div>
+                        <button type="submit" class="add-game-btn" id="submit-game-btn">Adicionar Jogo</button>
+                        <button type="button" class="update-game-btn hidden" id="update-game-btn">Atualizar Jogo</button>
+                        <button type="button" class="cancel-edit-btn hidden" id="cancel-edit-btn">Cancelar Edição</button>
+                    </form>
+                </div>
+                
+                <div class="search-bar">
+                    <input type="text" id="search-input" placeholder="Pesquisar jogos...">
+                    <button id="search-btn">Buscar</button>
+                </div>
+                
+                <!-- Recent Games Section -->
+                <div class="recent-section">
+                    <h3 class="section-title">🆕 Jogos Recentes</h3>
+                    <div class="recent-games" id="recent-games">
+                        <!-- Recent games will be dynamically inserted here -->
+                    </div>
+                </div>
+                
+                <!-- All Games Section -->
+                <div class="all-games-section">
+                    <h3 class="section-title">🎮 Todos os Jogos</h3>
+                    <div class="games-grid" id="games-grid">
+                        <!-- All games will be dynamically inserted here -->
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
 
-  <!-- Pesquisa sempre visível após login -->
-  <div class="box" id="boxPesquisa" style="display:none;">
-    <h2>🔍 Pesquisar jogo</h2>
-    <div id="contador">Total de jogos cadastrados: 0</div>
-    <input type="text" id="pesquisa" placeholder="Digite o nome do jogo">
-    <div id="resultados"></div>
-  </div>
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="logo">
+                    <span class="logo-icon">🎮</span>
+                    <h2>SteamPass</h2>
+                </div>
+                <p>Seu acervo pessoal de jogos e chaves</p>
+                <p>&copy; 2025 SteamPass. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
 
-  <!-- Jogos recentes -->
-  <div class="box" id="boxRecentes" style="display:none;">
-    <h2>🆕 Jogos cadastrados recentemente</h2>
-    <div id="recentes"></div>
-  </div>
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Firebase para Autenticação
+        import { initializeApp as initializeAuthApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { 
+            getAuth, 
+            signInWithEmailAndPassword, 
+            signOut,
+            onAuthStateChanged 
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, getDocs, query, orderBy, limit, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
+        // Firebase para Firestore (Jogos)
+        import { initializeApp as initializeFirestoreApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { 
+            getFirestore, 
+            collection, 
+            addDoc, 
+            getDocs, 
+            updateDoc, 
+            doc, 
+            query, 
+            orderBy, 
+            limit 
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyDDb1tv_3Xxx1QwOgY_C88ar4x8Mx_HO0M",
-      authDomain: "meus-jogos-d4d9a.firebaseapp.com",
-      projectId: "meus-jogos-d4d9a",
-      storageBucket: "meus-jogos-d4d9a.firebasestorage.app",
-      messagingSenderId: "183899321961",
-      appId: "1:183899321961:web:4bb40f0c0dc5f1aaf7d4f8",
-      measurementId: "G-KBPWFPMGNS"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    let usuarioLogado = "";
-    let cacheJogos = [];
-
-    // LOGIN
-    document.getElementById("btnLogin").addEventListener("click", () => {
-      usuarioLogado = document.getElementById("usuario").value.trim().toLowerCase();
-      if (!usuarioLogado) return;
-
-      // Esconde login
-      document.getElementById("boxLogin").style.display = "none";
-
-      // Mostra pesquisa e recentes
-      document.getElementById("boxPesquisa").style.display = "block";
-      document.getElementById("boxRecentes").style.display = "block";
-
-      // Só admin vê o box de cadastrar
-      if (usuarioLogado === "luanctos") {
-        document.getElementById("boxCadastrar").style.display = "block";
-      }
-
-      carregarJogos();
-      atualizarRecentes();
-    });
-
-    // Cadastrar jogo (apenas admin)
-    async function cadastrar() {
-      if (usuarioLogado !== "luanctos") return;
-      const nome = document.getElementById("nome").value.trim();
-      const chave = document.getElementById("chave").value.trim();
-      if (!nome || !chave) return;
-      await addDoc(collection(db, "jogos"), { nome, chave, criadoEm: new Date() });
-      document.getElementById("nome").value = "";
-      document.getElementById("chave").value = "";
-      await carregarJogos();
-      atualizarRecentes();
-      pesquisar();
-    }
-
-    async function carregarJogos() {
-      const querySnapshot = await getDocs(collection(db, "jogos"));
-      cacheJogos = [];
-      querySnapshot.forEach(docSnap => {
-        cacheJogos.push({ id: docSnap.id, ...docSnap.data() });
-      });
-      atualizarContador();
-    }
-
-    function criarResultDiv(id, nome, chave) {
-      const div = document.createElement("div");
-      div.className = "result";
-      const nomeSpan = document.createElement("span");
-      nomeSpan.innerHTML = `<b>${nome}</b>`;
-      const chaveSpan = document.createElement("span");
-      chaveSpan.textContent = `🔑 ${chave}`;
-
-      const btnGroup = document.createElement("div");
-      btnGroup.className = "btn-group";
-
-      const btnCopy = document.createElement("button");
-      btnCopy.className = "copy-btn";
-      btnCopy.textContent = "📋 Copiar";
-      btnCopy.onclick = () => navigator.clipboard.writeText(`${nome} - ${chave}`);
-
-      btnGroup.appendChild(btnCopy);
-
-      // Apenas admin pode excluir
-      if (usuarioLogado === "luanctos") {
-        const btnDelete = document.createElement("button");
-        btnDelete.className = "delete-btn";
-        btnDelete.textContent = "🗑️ Excluir";
-        btnDelete.onclick = async () => {
-          await deleteDoc(doc(db, "jogos", id));
-          await carregarJogos();
-          atualizarRecentes();
-          pesquisar();
+        // Configuração do Firebase para Autenticação
+        const authFirebaseConfig = {
+            apiKey: "AIzaSyCFaxZQ6vY20CqGaDo8BHFlQUsrbjZh-AQ",
+            authDomain: "steampaogin.firebaseapp.com",
+            projectId: "steampaogin",
+            storageBucket: "steampaogin.firebasestorage.app",
+            messagingSenderId: "853532000377",
+            appId: "1:853532000377:web:0a7c9431fac2d9466a94a8"
         };
-        btnGroup.appendChild(btnDelete);
-      }
 
-      div.appendChild(nomeSpan);
-      div.appendChild(chaveSpan);
-      div.appendChild(btnGroup);
-      return div;
-    }
+        // Configuração do Firebase para Jogos
+        const gamesFirebaseConfig = {
+            apiKey: "AIzaSyDDb1tv_3Xxx1QwOgY_C88ar4x8Mx_HO0M",
+            authDomain: "meus-jogos-d4d9a.firebaseapp.com",
+            projectId: "meus-jogos-d4d9a",
+            storageBucket: "meus-jogos-d4d9a.firebasestorage.app",
+            messagingSenderId: "183899321961",
+            appId: "1:183899321961:web:4bb40f0c0dc5f1aaf7d4f8",
+            measurementId: "G-KBPWFPMGNS"
+        };
 
-    function pesquisar() {
-      const termo = document.getElementById("pesquisa").value.trim().toLowerCase();
-      const resultadosDiv = document.getElementById("resultados");
-      resultadosDiv.innerHTML = "";
-      const resultados = termo 
-        ? cacheJogos.filter(j => j.nome.toLowerCase().includes(termo)) 
-        : cacheJogos;
-      resultados.forEach(j => resultadosDiv.appendChild(criarResultDiv(j.id, j.nome, j.chave)));
-    }
+        // Initialize Firebase Apps
+        const authApp = initializeAuthApp(authFirebaseConfig, "auth");
+        const gamesApp = initializeFirestoreApp(gamesFirebaseConfig, "games");
+        
+        const auth = getAuth(authApp);
+        const db = getFirestore(gamesApp);
 
-    async function atualizarRecentes() {
-      const recentesDiv = document.getElementById("recentes");
-      recentesDiv.innerHTML = "";
-      const q = query(collection(db, "jogos"), orderBy("criadoEm", "desc"), limit(5));
-      const querySnapshot = await getDocs(q);
-      querySnapshot.forEach(docSnap => {
-        const data = docSnap.data();
-        recentesDiv.appendChild(criarResultDiv(docSnap.id, data.nome, data.chave));
-      });
-    }
+        // DOM Elements
+        const loginPage = document.getElementById('login-page');
+        const gamesPage = document.getElementById('games-page');
+        const loginForm = document.getElementById('login-form');
+        const gamesGrid = document.getElementById('games-grid');
+        const recentGamesGrid = document.getElementById('recent-games');
+        const adminPanel = document.getElementById('admin-panel');
+        const addGameForm = document.getElementById('add-game-form');
+        const searchInput = document.getElementById('search-input');
+        const searchBtn = document.getElementById('search-btn');
+        const navHome = document.getElementById('nav-home');
+        const navGames = document.getElementById('nav-games');
+        const navLogin = document.getElementById('nav-login');
+        const logoutBtn = document.getElementById('logout-btn');
+        const userNavItem = document.getElementById('user-nav-item');
+        const loginNavItem = document.getElementById('login-nav-item');
+        const userEmail = document.getElementById('user-email');
+        
+        // Admin form elements
+        const adminPanelTitle = document.getElementById('admin-panel-title');
+        const editGameId = document.getElementById('edit-game-id');
+        const submitGameBtn = document.getElementById('submit-game-btn');
+        const updateGameBtn = document.getElementById('update-game-btn');
+        const cancelEditBtn = document.getElementById('cancel-edit-btn');
 
-    function atualizarContador() {
-      document.getElementById("contador").textContent = `Total de jogos cadastrados: ${cacheJogos.length}`;
-    }
+        // Current user
+        let currentUser = null;
+        let isAdmin = false;
+        let allGames = [];
 
-    document.getElementById("btnCadastrar").addEventListener("click", cadastrar);
-    document.getElementById("pesquisa").addEventListener("keyup", pesquisar);
-  </script>
+        // Show notification
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Login function
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                // The onAuthStateChanged listener will handle the UI update
+            } catch (error) {
+                console.error('Error signing in:', error);
+                showNotification('Erro ao fazer login: ' + error.message, 'error');
+            }
+        });
+
+        // Logout function
+        logoutBtn.addEventListener('click', async () => {
+            try {
+                await signOut(auth);
+                showNotification('Logout realizado com sucesso!', 'success');
+            } catch (error) {
+                console.error('Error signing out:', error);
+                showNotification('Erro ao fazer logout', 'error');
+            }
+        });
+
+        // Auth state observer
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // User is signed in
+                currentUser = user;
+                isAdmin = user.email === 'luan@gmail.com'; 
+                
+                // Update UI
+                userEmail.textContent = user.email;
+                userNavItem.classList.remove('hidden');
+                loginNavItem.classList.add('hidden');
+                
+                loginPage.classList.add('hidden');
+                gamesPage.classList.remove('hidden');
+                
+                // Load games
+                loadGames();
+                
+                // Show admin panel if admin
+                if (isAdmin) {
+                    adminPanel.classList.remove('hidden');
+                    showNotification(`Bem-vindo, Administrador ${user.email}!`, 'success');
+                } else {
+                    showNotification(`Bem-vindo, ${user.email}!`, 'success');
+                }
+            } else {
+                // User is signed out
+                currentUser = null;
+                isAdmin = false;
+                
+                // Update UI
+                userNavItem.classList.add('hidden');
+                loginNavItem.classList.remove('hidden');
+                
+                gamesPage.classList.add('hidden');
+                loginPage.classList.remove('hidden');
+                adminPanel.classList.add('hidden');
+                
+                loginForm.reset();
+            }
+        });
+
+        // Create game card HTML
+        function createGameCard(game, isRecent = false) {
+            // Processar chaves - mantendo compatibilidade com estrutura antiga e nova
+            let keys = [];
+            if (game.chaves && Array.isArray(game.chaves)) {
+                keys = game.chaves;
+            } else if (game.chave) {
+                keys = [game.chave];
+            } else if (game.keys) {
+                keys = typeof game.keys === 'string' ? game.keys.split(',').map(k => k.trim()) : game.keys;
+            }
+            
+            const availableKeys = keys.filter(key => key && key.trim() !== '');
+            
+            const gameCard = document.createElement('div');
+            gameCard.className = 'game-card';
+            
+            gameCard.innerHTML = `
+                <img src="${game.cover || 'https://via.placeholder.com/300x180/2d3436/dfe6e9?text=Sem+Capa'}" alt="${game.nome || game.title}" class="game-cover">
+                <div class="game-info">
+                    <h3 class="game-title">${game.nome || game.title}</h3>
+                    <p class="game-description">${game.descricao || game.description || 'Sem descrição'}</p>
+                    <div class="game-details">
+                        <span>Chaves disponíveis:</span>
+                        <span class="key-count">${availableKeys.length}</span>
+                    </div>
+                    <button class="get-key-btn" ${availableKeys.length === 0 ? 'disabled' : ''}>
+                        ${availableKeys.length === 0 ? 'Sem chaves' : '🎮 Resgatar Chave'}
+                    </button>
+                    ${isAdmin && !isRecent ? '<button class="edit-game-btn">✏️ Editar Jogo</button>' : ''}
+                </div>
+            `;
+            
+            // Add event listener to the copy button
+            const copyButton = gameCard.querySelector('.get-key-btn');
+            if (availableKeys.length > 0) {
+                copyButton.addEventListener('click', async () => {
+                    // Usar a primeira chave disponível
+                    const keyToCopy = availableKeys[0];
+                    
+                    try {
+                        // Copiar para a área de transferência
+                        await navigator.clipboard.writeText(keyToCopy);
+                        showNotification(`Chave copiada: ${keyToCopy}`, 'success');
+                    } catch (error) {
+                        showNotification('Erro ao copiar chave', 'error');
+                        console.error('Error copying to clipboard: ', error);
+                    }
+                });
+            }
+            
+            // Add event listener to the edit button (only for admin and not in recent section)
+            if (isAdmin && !isRecent) {
+                const editButton = gameCard.querySelector('.edit-game-btn');
+                editButton.addEventListener('click', () => {
+                    editGame(game);
+                });
+            }
+            
+            return gameCard;
+        }
+
+        // Load games from Firebase
+        async function loadGames() {
+            gamesGrid.innerHTML = '<p style="text-align: center; grid-column: 1/-1; padding: 40px;">Carregando jogos...</p>';
+            recentGamesGrid.innerHTML = '<p style="text-align: center; grid-column: 1/-1; padding: 20px;">Carregando jogos recentes...</p>';
+            
+            try {
+                // Load all games
+                const querySnapshot = await getDocs(collection(db, "jogos"));
+                allGames = [];
+                gamesGrid.innerHTML = '';
+                
+                if (querySnapshot.empty) {
+                    gamesGrid.innerHTML = '<p style="text-align: center; grid-column: 1/-1; padding: 40px;">Nenhum jogo cadastrado ainda.</p>';
+                    recentGamesGrid.innerHTML = '<p style="text-align: center; grid-column: 1/-1; padding: 20px;">Nenhum jogo recente.</p>';
+                    return;
+                }
+                
+                // Process all games
+                querySnapshot.forEach((doc) => {
+                    const game = doc.data();
+                    game.id = doc.id;
+                    allGames.push(game);
+                    
+                    // Add to all games grid
+                    gamesGrid.appendChild(createGameCard(game));
+                });
+                
+                // Load recent games (last 8)
+                const recentQuery = query(collection(db, "jogos"), orderBy("criadoEm", "desc"), limit(8));
+                const recentSnapshot = await getDocs(recentQuery);
+                recentGamesGrid.innerHTML = '';
+                
+                if (recentSnapshot.empty) {
+                    recentGamesGrid.innerHTML = '<p style="text-align: center; grid-column: 1/-1; padding: 20px;">Nenhum jogo recente.</p>';
+                    return;
+                }
+                
+                // Process recent games
+                recentSnapshot.forEach((doc) => {
+                    const game = doc.data();
+                    game.id = doc.id;
+                    
+                    // Add to recent games grid
+                    recentGamesGrid.appendChild(createGameCard(game, true));
+                });
+                
+            } catch (error) {
+                console.error('Error getting documents: ', error);
+                gamesGrid.innerHTML = '<p style="text-align: center; grid-column: 1/-1; padding: 40px;">Erro ao carregar jogos.</p>';
+                recentGamesGrid.innerHTML = '<p style="text-align: center; grid-column: 1/-1; padding: 20px;">Erro ao carregar jogos recentes.</p>';
+            }
+        }
+
+        // Edit game function
+        function editGame(game) {
+            // Preencher o formulário com os dados do jogo
+            document.getElementById('game-title').value = game.nome || game.title || '';
+            document.getElementById('game-cover').value = game.cover || '';
+            document.getElementById('game-description').value = game.descricao || game.description || '';
+            
+            // Processar chaves para exibição
+            let keys = [];
+            if (game.chaves && Array.isArray(game.chaves)) {
+                keys = game.chaves;
+            } else if (game.chave) {
+                keys = [game.chave];
+            } else if (game.keys) {
+                keys = typeof game.keys === 'string' ? game.keys.split(',').map(k => k.trim()) : game.keys;
+            }
+            
+            document.getElementById('game-keys').value = keys.join(', ');
+            
+            // Armazenar o ID do jogo sendo editado
+            editGameId.value = game.id;
+            
+            // Mudar para modo de edição
+            adminPanelTitle.textContent = 'Editar Jogo';
+            submitGameBtn.classList.add('hidden');
+            updateGameBtn.classList.remove('hidden');
+            cancelEditBtn.classList.remove('hidden');
+            
+            // Rolar até o formulário
+            adminPanel.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Cancel edit function
+        function cancelEdit() {
+            // Limpar o formulário
+            addGameForm.reset();
+            editGameId.value = '';
+            
+            // Voltar para modo de adição
+            adminPanelTitle.textContent = 'Adicionar Novo Jogo';
+            submitGameBtn.classList.remove('hidden');
+            updateGameBtn.classList.add('hidden');
+            cancelEditBtn.classList.add('hidden');
+        }
+
+        // Add game function (admin only)
+        addGameForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (!isAdmin) {
+                showNotification('Apenas administradores podem adicionar jogos', 'error');
+                return;
+            }
+            
+            const title = document.getElementById('game-title').value;
+            const cover = document.getElementById('game-cover').value;
+            const description = document.getElementById('game-description').value;
+            const keysText = document.getElementById('game-keys').value;
+            
+            // Process keys
+            const keys = keysText.split(',').map(key => key.trim()).filter(key => key !== '');
+            
+            try {
+                // Add game to Firebase
+                await addDoc(collection(db, "jogos"), {
+                    nome: title,
+                    cover: cover,
+                    descricao: description,
+                    chaves: keys,
+                    criadoEm: new Date(),
+                    adicionadoPor: currentUser.email
+                });
+                
+                showNotification('Jogo adicionado com sucesso!', 'success');
+                addGameForm.reset();
+                loadGames();
+            } catch (error) {
+                showNotification('Erro ao adicionar jogo', 'error');
+                console.error('Error adding document: ', error);
+            }
+        });
+
+        // Update game function
+        updateGameBtn.addEventListener('click', async () => {
+            if (!isAdmin) {
+                showNotification('Apenas administradores podem editar jogos', 'error');
+                return;
+            }
+            
+            const gameId = editGameId.value;
+            if (!gameId) {
+                showNotification('Nenhum jogo selecionado para edição', 'error');
+                return;
+            }
+            
+            const title = document.getElementById('game-title').value;
+            const cover = document.getElementById('game-cover').value;
+            const description = document.getElementById('game-description').value;
+            const keysText = document.getElementById('game-keys').value;
+            
+            // Process keys
+            const keys = keysText.split(',').map(key => key.trim()).filter(key => key !== '');
+            
+            try {
+                // Update game in Firebase
+                await updateDoc(doc(db, "jogos", gameId), {
+                    nome: title,
+                    cover: cover,
+                    descricao: description,
+                    chaves: keys,
+                    atualizadoEm: new Date(),
+                    atualizadoPor: currentUser.email
+                });
+                
+                showNotification('Jogo atualizado com sucesso!', 'success');
+                cancelEdit();
+                loadGames();
+            } catch (error) {
+                showNotification('Erro ao atualizar jogo', 'error');
+                console.error('Error updating document: ', error);
+            }
+        });
+
+        // Cancel edit button
+        cancelEditBtn.addEventListener('click', cancelEdit);
+
+        // Search functionality
+        function performSearch() {
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            const gameCards = document.querySelectorAll('.game-card');
+            
+            if (searchTerm === '') {
+                // Mostrar todos os jogos se a pesquisa estiver vazia
+                gameCards.forEach(card => {
+                    card.style.display = 'block';
+                });
+                return;
+            }
+            
+            gameCards.forEach(card => {
+                const title = card.querySelector('.game-title').textContent.toLowerCase();
+                if (title.includes(searchTerm)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        searchBtn.addEventListener('click', performSearch);
+        searchInput.addEventListener('keyup', performSearch);
+
+        // Navigation
+        navHome.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (currentUser) {
+                loginPage.classList.add('hidden');
+                gamesPage.classList.remove('hidden');
+            }
+        });
+
+        navGames.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (currentUser) {
+                loginPage.classList.add('hidden');
+                gamesPage.classList.remove('hidden');
+            }
+        });
+
+        navLogin.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (!currentUser) {
+                loginPage.classList.remove('hidden');
+                gamesPage.classList.add('hidden');
+            }
+        });
+    </script>
 </body>
 </html>
-
 
 
 
